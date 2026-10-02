@@ -1,0 +1,2 @@
+The site is permanently available online under:
+https://gitthirteen.github.io/visualizations/sfwaterquality/

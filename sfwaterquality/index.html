@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<head>
+    <title>San Francisco Water Quality</title>
+    <meta charset="UTF-8">
+    <meta name="keywords" content="Water Quality, San Francisco">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+
+<body>
+        <div class="header">
+            <div class="sun"></div>
+            <div class="unselectable title">
+                    <h2>Water Quality</h2>
+                    <h4>in the</h4>
+                    <h1>San Francisco Bay Area</h1>
+            </div>
+        </div>
+        
+        <div class="main">
+            <div class="map-area">
+                <div class="map">
+                    <div id="leaflet-map"></div>
+                </div>
+            </div>
+            <div class="data-area">
+                <div class="thin selector data-field">
+                    <span id="2021" class="unselectable selector-item">2021</span>
+                    <span id="2022" class="unselectable selector-item">2022</span>
+                    <span id="2023" class="unselectable selector-item">2023</span>
+                </div>
+                <div class="thin crediter data-field">
+                    Made with D3.js, Leaflet & a lot of coffee.<br>
+                    <span class="op-80">© Michael Eickmeyer, Jeton Shehu @ TU Wien, 2023.</span>
+                </div>
+                <div class="data-field">
+                    <div class="dashed-border data-field-inner" id="df-1-default">
+                        <h3>No Data Selected</h3>
+                        Click anywhere on the map to find out more.
+                    </div>
+                    <div class="hidden data-field-inner-alt" id="df-1-data">
+                        <div class="title-wrapper">
+                            <h4 id="df-1-title" class="el-overflow"></h4>
+                            <i class="fa fa-times fa-2x del-icon"></i>
+                        </div>
+                        <span id="df-1-coords" class="op-80"></span>
+
+                        <div class="info-wrapper">
+                            <div class="minor-caption">Yearly Avg.</div>
+                            <div class="info-fields">
+                                <div id="df-1-temp" class="info-field">
+                                    <div class="minor-caption">Temperature</div>
+                                    <span></span>
+                                    <div class="op-80 minor-caption"></div>
+                                </div>
+                                <div id="df-1-muddiness" class="info-field">
+                                    <div class="minor-caption">Pollution (SPM)</div>
+                                    <span></span>
+                                    <div class="op-80 minor-caption"></div>
+                                </div>
+                                <div id="df-1-algae" class="info-field">
+                                    <div class="minor-caption">Algae Concentration</div>
+                                    <span></span>
+                                    <div class="op-80 minor-caption"></div>
+                                </div>
+                                <div id="df-1-salinity" class="info-field">
+                                    <div class="minor-caption">Salinity</div>
+                                    <span></span>
+                                    <div class="op-80 minor-caption"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="data-field">
+                    <div class="dashed-border data-field-inner" id="df-2-default">
+                        <h3>No Data Selected</h3>
+                        Click anywhere on the map to find out more.
+                    </div>
+                    <div class="hidden data-field-inner-alt" id="df-2-data">
+                        <div class="title-wrapper">
+                            <h4 id="df-2-title" class="el-overflow"></h4>
+                            <i class="fa fa-times fa-2x del-icon"></i>
+                        </div>
+                        <span id="df-2-coords" class="op-80"></span>
+
+                        <div class="info-wrapper">
+                            <div class="minor-caption">Yearly Avg.</div>
+                            <div class="info-fields">
+                                <div id="df-2-temp" class="info-field">
+                                    <div class="minor-caption">Temperature</div>
+                                    <span>25°C</span>
+                                    <div class="op-80 minor-caption">70°F</div>
+                                </div>
+                                <div id="df-2-muddiness" class="info-field">
+                                    <div class="minor-caption">Pollution (SPM)</div>
+                                    <span>Clear</span>
+                                    <div class="op-80 minor-caption">Lorem Ipsum</div>
+                                </div>
+                                <div id="df-2-algae" class="info-field">
+                                    <div class="minor-caption">Algae Concentration</div>
+                                    <span>Medium</span>
+                                    <div class="op-80 minor-caption">Lorem Ipsum</div>
+                                </div>
+                                <div id="df-2-salinity" class="info-field">
+                                    <div class="minor-caption">Salinity</div>
+                                    <span>Average</span>
+                                    <div class="op-80 minor-caption">23.1g/L</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeplotter data-field aligner">
+                    <select id="selectButton"></select>
+                    <div id="timeplotter"></div>
+                </div>
+                <div class="data-field aligner">
+                    <div class="thats-it">
+                        <h3>That's it for now!</h3>
+                        Stay tuned for more in the future!
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    <script src="main.js"></script>
+<!--    <script src="map.js"></script>-->
+</body>
+</html>
