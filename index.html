@@ -8,7 +8,7 @@
   <title>Visualizations | Michael Eickmeyer</title>
 
   <link rel="stylesheet" href="__src/design.css">
-  <link rel="icon" type="image/x-icon" href="assets/img/icons/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="__src/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
@@ -23,14 +23,8 @@
     });
 
     const BOTTOM_OPACITY = 0;
-    // Fade ramp length in pixels, independent of viewport height so short windows do
-    // not collapse the ramp and leave mid-screen cards invisible.
     const FADE_DISTANCE_PX = 320;
-    // Fraction of the viewport height, measured from the bottom, at which a card
-    // reaches full opacity. 0.25 = a quarter of the way up from the bottom edge.
     const FULL_OPACITY_AT = 0.25;
-    // Below this width the cards stack and a single card can exceed the viewport,
-    // so the reveal effect is disabled entirely.
     const REVEAL_MIN_WIDTH = 900;
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
