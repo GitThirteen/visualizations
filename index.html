@@ -7,13 +7,113 @@
 
   <title>Visualizations | Michael Eickmeyer</title>
 
-  <link rel="stylesheet" href="design.css">
-  <!--<link rel="icon" type="image/x-icon" href="assets/img/icons/favicon.ico">-->
+  <link rel="stylesheet" href="__src/design.css">
+  <link rel="icon" type="image/x-icon" href="assets/img/icons/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
-  
-  <!--<script type="module" src="assets/js/main.js"></script>-->
+
+  <script type="module">
+    import { initScrollbar } from './__src/scrollbar.js';
+
+    initScrollbar();
+
+    document.querySelectorAll('.vis-image').forEach((img) => {
+      img.addEventListener('error', () => img.removeAttribute('src'), { once: true });
+    });
+
+    const BOTTOM_OPACITY = 0;
+    // Fade ramp length in pixels, independent of viewport height so short windows do
+    // not collapse the ramp and leave mid-screen cards invisible.
+    const FADE_DISTANCE_PX = 320;
+    // Fraction of the viewport height, measured from the bottom, at which a card
+    // reaches full opacity. 0.25 = a quarter of the way up from the bottom edge.
+    const FULL_OPACITY_AT = 0.25;
+    // Below this width the cards stack and a single card can exceed the viewport,
+    // so the reveal effect is disabled entirely.
+    const REVEAL_MIN_WIDTH = 900;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const initReveal = () => {
+      const cells = document.querySelectorAll('.vis-cell');
+
+      const showAll = () => {
+        cells.forEach((cell) => {
+          cell.style.opacity = '';
+          cell.classList.add('is-visible');
+        });
+      };
+      if (reduceMotion) {
+        showAll();
+        return;
+      }
+
+      let revealRaf = null;
+      let enabled = window.innerWidth > REVEAL_MIN_WIDTH;
+
+      const updateReveal = () => {
+        revealRaf = null;
+
+        const viewportHeight = window.innerHeight;
+
+        // Full opacity is reached once the card's bottom edge rises above this line,
+        // i.e. 25% of the way up from the bottom of the viewport.
+        const fullOpacityLine = viewportHeight * (1 - FULL_OPACITY_AT);
+
+        // At the very bottom of the page nothing can scroll further, so any card still
+        // on screen would otherwise be stranded below the line.
+        const maxScroll = document.documentElement.scrollHeight - viewportHeight;
+        const atPageEnd = maxScroll > 0 && window.scrollY >= maxScroll - 1;
+
+        cells.forEach((cell) => {
+          const rect = cell.getBoundingClientRect();
+
+          // How far the card's bottom edge still sits below that line.
+          const below = Math.max(0, rect.bottom - fullOpacityLine);
+          const progress = atPageEnd ? 0 : Math.min(1, below / FADE_DISTANCE_PX);
+
+          const opacity = 1 - progress * (1 - BOTTOM_OPACITY);
+
+          cell.style.opacity = opacity.toFixed(3);
+          cell.classList.toggle('is-visible', opacity >= 0.999);
+        });
+      };
+
+      const applyMode = () => {
+        revealRaf = null;
+
+        const shouldEnable = window.innerWidth > REVEAL_MIN_WIDTH;
+
+        if (shouldEnable === enabled) {
+          if (enabled) updateReveal();
+          return;
+        }
+
+        enabled = shouldEnable;
+
+        if (enabled) updateReveal();
+        else showAll();
+      };
+
+      const scheduleReveal = () => {
+        if (!revealRaf) revealRaf = requestAnimationFrame(applyMode);
+      };
+
+      if (enabled) updateReveal();
+      else showAll();
+
+      window.addEventListener('scroll', scheduleReveal, { passive: true });
+      window.addEventListener('resize', scheduleReveal);
+    };
+
+    // This script sits in <head>, so the cards do not exist yet on first run.
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initReveal, { once: true });
+    } else {
+      initReveal();
+    }
+  </script>
 </head>
 
 <body>
@@ -27,62 +127,168 @@
 
   <main>
     <div class="title-area">
+      <p class="eyebrow">Ice Tea Fueled</p>
       <h1 class="main">Visualizations</h1>
-      <h2 class="sub">This is currently Work in Progress!</h2>
+      <p class="intro">
+        A growing collection of interactive visualizations and rendering experiments I build in my spare time, 
+        ranging from physically-based rendering and volume visualization to geospatial data exploration.
+        Everything here runs right in your browser, no plugins required.
+      </p>
       <div class="divider"></div>
     </div>
 
     <div class="vis-list">
-      <div href="" class="vis-cell">
-        <img class="vis-image">
-        <div class="vis-info">
-          <h2 class="vis-title">Interactive Path Tracing (WIP)</h2>
-          <p class="vis-description"></p>
+      <a href="" class="vis-cell">
+        <div class="vis-thumb">
+          <span class="vis-badge">WIP</span>
+          <img class="vis-image" src="assets/img/vis/pathtracer.png" alt="Teaser image for the interactive path tracing visualization" loading="lazy">
         </div>
-      </div>
-      <div href="" class="reversed vis-cell">
-        <img class="vis-image">
         <div class="vis-info">
-          <h2 class="vis-title">CT Volume Visualization (WIP)</h2>
-          <p class="vis-description"></p>
+          <h2 class="vis-title">Interactive Path Tracing</h2>
+          <p class="vis-description">
+            A path tracer built as an interactive visual debugger rather than a toy. Hover any
+            bounce vertex to inspect the BSDF coordinate frame, surface normal, throughput weight,
+            MIS weights and Russian roulette survival probability, while a split timeline shows the output to converge.
+          </p>
+          <div class="vis-meta">
+            <span class="vis-tag">WebGL</span>
+            <span class="vis-tag">Monte-Carlo</span>
+          </div>
         </div>
-      </div>
-      <div href="" class="vis-cell">
-        <img class="vis-image">
+      </a>
+
+      <a href="" class="reversed vis-cell">
+        <div class="vis-thumb">
+          <span class="vis-badge">WIP</span>
+          <img class="vis-image" src="assets/img/vis/ct.png" alt="Teaser image for the CT volume visualization" loading="lazy">
+        </div>
         <div class="vis-info">
-          <h2 class="vis-title">Urban Isochrone Wavefront (WIP)</h2>
-          <p class="vis-description"></p>
+          <h2 class="vis-title">CT Volume Visualization</h2>
+          <p class="vis-description">
+            Direct volume rendering of raw CT volumes via raycasting into 3D floating-point
+            textures. Raymarching is accelerated with an octree for empty-space skipping, and
+            a 2D transfer function maps intensity against gradient magnitude.
+          </p>
+          <div class="vis-meta">
+            <span class="vis-tag">WebGPU</span>
+            <span class="vis-tag">Volume Rendering</span>
+          </div>
         </div>
-      </div>
-      <div href="" class="reversed vis-cell">
-        <img class="vis-image">
+      </a>
+
+      <a href="" class="vis-cell">
+        <div class="vis-thumb">
+          <span class="vis-badge">WIP</span>
+          <img class="vis-image" src="assets/img/vis/urbanize.png" alt="Teaser image for the urban isochrone wavefront visualization" loading="lazy">
+        </div>
         <div class="vis-info">
-          <h2 class="vis-title">Russo-Ukrainian War (WIP)</h2>
-          <p class="vis-description"></p>
+          <h2 class="vis-title">Urban Isochrone Wavefront</h2>
+          <p class="vis-description">
+            This visualization turns reachability into a visible wave. 
+            Travel-time wavefronts are swept in a 3D visualization across real street topology 
+            from OpenStreetMap, which is then solved with a GPU-accelerated shortest-path solver. 
+          </p>
+          <div class="vis-meta">
+            <span class="vis-tag">WebGPU</span>
+            <span class="vis-tag">Geospatial</span>
+          </div>
         </div>
-      </div>
-      <div href="" class="vis-cell">
-        <img class="vis-image">
+      </a>
+
+      <a href="" class="reversed vis-cell">
+        <div class="vis-thumb">
+          <span class="vis-badge">WIP</span>
+          <img class="vis-image" src="assets/img/vis/ukraine.png" alt="Teaser image for the Russo-Ukrainian war visualization" loading="lazy">
+        </div>
         <div class="vis-info">
-          <h2 class="vis-title">Black Hole Simulation (WIP)</h2>
-          <p class="vis-description"></p>
+          <h2 class="vis-title">Russo-Ukrainian War</h2>
+          <p class="vis-description">
+            On February 24, 2022, Russian forces crossed into Ukraine and Europe's largest land war
+            since 1945 began. This visualization follows the front line day by day, mapping
+            territorial control and the events behind every shift using openly available datasets.
+          </p>
+          <div class="vis-meta">
+            <span class="vis-tag">D3.js</span>
+            <span class="vis-tag">Timeline</span>
+          </div>
         </div>
-      </div>
-      <div href="./sfwaterquality/" class="reversed vis-cell">
-        <img class="vis-image">
+      </a>
+
+      <a href="" class="vis-cell">
+        <div class="vis-thumb">
+          <span class="vis-badge">WIP</span>
+          <img class="vis-image" src="assets/img/vis/black-hole.png" alt="Teaser image for the black hole simulation" loading="lazy">
+        </div>
         <div class="vis-info">
-          <h2 class="vis-title">San Francisco Water Quality (WIP)</h2>
-          <p class="vis-description"></p>
+          <h2 class="vis-title">Black Hole Simulation</h2>
+          <p class="vis-description">
+            A general-relativistic raytracer for a spinning Kerr black hole. Null geodesics are
+            integrated numerically through curved spacetime, with exposed spin parameter, accretion
+            disk temperature profile, relativistic Doppler beaming and gravitational redshift.
+          </p>
+          <div class="vis-meta">
+            <span class="vis-tag">WebGPU</span>
+            <span class="vis-tag">General Relativity</span>
+          </div>
         </div>
-      </div>
-      <div href="" class="vis-cell">
-        <img class="vis-image">
+      </a>
+
+      <a href="./sfwaterquality/" class="reversed vis-cell">
+        <div class="vis-thumb">
+          <span class="vis-badge">WIP</span>
+          <img class="vis-image" src="assets/img/vis/sfwaterquality.png" alt="Teaser image for the San Francisco water quality dashboard" loading="lazy">
+        </div>
         <div class="vis-info">
-          <h2 class="vis-title">Dynamic Volume Illumination (WIP)</h2>
-          <p class="vis-description"></p>
+          <h2 class="vis-title">San Francisco Water Quality</h2>
+          <p class="vis-description">
+            Water quality measurements across the SFPUC network, from the Hetch Hetchy Reservoir in
+            Yosemite 167 miles down to the city grid. Stations are mapped in their spatial context,
+            with interpolated scalar fields and time series for each parameter.
+          </p>
+          <div class="vis-meta">
+            <span class="vis-tag">D3.js</span>
+            <span class="vis-tag">Interpolation</span>
+          </div>
         </div>
-      </div>
+      </a>
+
+      <a href="" class="vis-cell">
+        <div class="vis-thumb">
+          <span class="vis-badge">WIP</span>
+          <img class="vis-image" src="assets/img/vis/volume-caustics.png" alt="Teaser image for the dynamic volume illumination visualization" loading="lazy">
+        </div>
+        <div class="vis-info">
+          <h2 class="vis-title">Dynamic Volume Illumination</h2>
+          <p class="vis-description">
+            A web port of Magnus and Bruckner's interactive dynamic volume illumination with
+            refraction and caustics. Using both light-ray and viewing-ray propagation, photons 
+            march through a volume to estimate caustics and refraction in real time.
+          </p>
+          <div class="vis-meta">
+            <span class="vis-tag">Caustics</span>
+            <span class="vis-tag">Volume Rendering</span>
+          </div>
+        </div>
+      </a>
     </div>
   </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-left">
+        <p class="footer-copy">© 2026 Michael Eickmeyer</p>
+        <p class="footer-sub">
+          <span id="tea-fluff">Made with <span class="fluff-insert">iced </span>tea</span>
+        </p>
+      </div>
+
+      <nav class="footer-nav" aria-label="External and source links">
+        <a href="https://ko-fi.com/akaxiii" target="_blank" rel="noopener noreferrer" title="KoFi">Grab Me a Tea</a>
+        <a href="https://gitthirteen.github.io" target="_blank" rel="noopener noreferrer" title="Homepage">Homepage</a>
+        <a href="https://github.com/gitthirteen/visualizations" target="_blank" rel="noopener noreferrer" title="GitHub Repo">Source</a>
+        <a href="#" class="footer-top">Back to top ↑</a>
+      </nav>
+    </div>
+  </footer>
 </body>
 </html>
